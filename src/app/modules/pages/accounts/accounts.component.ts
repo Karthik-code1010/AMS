@@ -34,10 +34,15 @@ export class AccountsComponent implements OnInit {
   rowBool: boolean= false;
   themeData: any;
   searchname:any = ''
+  accountLength: any;
+  offset: number = 0;
+  limit: any = 10;
+  OrganizationLength: any;
   constructor(private dialog: MatDialog,private commonService:CommonService, private router: Router, private dataService: DataService,private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
     this.getAccountData();
+    this.getOrganizationCount();
     this.displayedColumns = [];
     this.allColumns.forEach(element => {
       if (element.activeFlag) {
@@ -65,13 +70,39 @@ export class AccountsComponent implements OnInit {
 
   }
   getAccountData(){
-    this.dataService.getData(this.dataService.NODE_API + "/api/service/entities?type=Organization").subscribe(
+    this.dataService.getData(this.dataService.NODE_API + "/api/service/entities?type=Organization&limit="+this.limit+"&offset="+this.offset).subscribe(
       (response: any) => {
         console.log(response["data"]);
+      //  this.accountLength = response["data"].length;
         this.accountOrganization = response["data"]
        
       });
 
+  }
+  pageChangeEvent(event:any) {
+    console.log(event)
+    console.log(event)
+    this.offset = ((event.pageIndex + 1) - 1) * event.pageSize;
+     this.limit = event.pageSize;
+   console.log(this.offset)
+   console.log(this.limit);
+   this.dataService.getData(this.dataService.NODE_API + "/api/service/entities?type=Organization&limit="+this.limit+"&offset="+this.offset).subscribe(
+    (response: any) => {
+      console.log(response["data"]);
+    //  this.accountLength = response["data"].length;
+      this.accountOrganization = response["data"]
+     
+    });
+  }
+  getOrganizationCount(){
+    this.dataService.getData(this.dataService.NODE_API + "/api/service/entities?type=Organization&options=count").subscribe(
+      (response2: any) => {
+          this.OrganizationLength = response2["data"];
+          console.log(response2)
+          console.log(response2["data"]);
+          console.log('list of Organization Count',this.OrganizationLength)
+      });
+      
   }
  
 
